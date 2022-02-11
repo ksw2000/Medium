@@ -8,17 +8,12 @@ type person struct {
 }
 
 func (p1 *person) Compare(p2 NodeValue) int {
-	if p1.name == p2.(*person).name {
-		return 0
-	} else if p1.tall == p2.(*person).tall {
-		return 1
-	}
 	return p1.tall - p2.(*person).tall
 }
 
 func main() {
 	nodes := []*person{
-		{"Honoka", 157}, {"Hanamaru", 152}, {"Maki", 161},
+		{"Hanayo", 156}, {"Hanamaru", 152}, {"Maki", 161},
 		{"Ruby", 154}, {"Riko", 160}, {"Eli", 162}, {"Mari", 163},
 		{"Chisato", 155}, {"You", 157}, {"Ayumu", 159},
 	}
