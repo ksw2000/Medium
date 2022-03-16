@@ -17,12 +17,6 @@ type Bst struct {
 	root *Node
 }
 
-func NewBST() *Bst {
-	return &Bst{
-		root: nil,
-	}
-}
-
 func (b *Bst) Insert(n *Node) {
 	// super is the pointer of the pointer
 	// that points to the new node
