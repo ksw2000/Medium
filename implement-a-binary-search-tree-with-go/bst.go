@@ -1,28 +1,52 @@
-package main
+package bst
 
-type NodeValue interface {
-	// return positive number if n1 > n2
-	// return 0 if n1 == n2
-	// return negative number if n1 < n2
-	Compare(NodeValue) int
+type BSTNode struct {
+	Key   int
+	Val   interface{}
+	left  *BSTNode
+	right *BSTNode
 }
 
-type Node struct {
-	Val   NodeValue
-	left  *Node
-	right *Node
+func NewBSTNode(key int, val interface{}) *BSTNode {
+	return &BSTNode{
+		Key:   key,
+		Val:   val,
+		left:  nil,
+		right: nil,
+	}
 }
 
-type Bst struct {
-	root *Node
+func (n *BSTNode) do(do func(*BSTNode)) {
+	if n != nil {
+		n.left.do(do)
+		do(n)
+		n.right.do(do)
+	}
 }
 
-func (b *Bst) Insert(n *Node) {
+type BST struct {
+	root *BSTNode
+}
+
+func (b *BST) Search(key int) (n *BSTNode, found bool) {
+	for current := b.root; current != nil; {
+		if current.Key == key {
+			return current, true
+		} else if key < current.Key {
+			current = current.left
+		} else {
+			current = current.right
+		}
+	}
+	return nil, false
+}
+
+func (b *BST) Insert(n *BSTNode) {
 	// super is the pointer of the pointer
 	// that points to the new node
 	super := &b.root
 	for *super != nil {
-		if n.Val.Compare((*super).Val) < 0 {
+		if n.Key < (*super).Key {
 			super = &(*super).left
 		} else {
 			super = &(*super).right
@@ -31,13 +55,13 @@ func (b *Bst) Insert(n *Node) {
 	*super = n
 }
 
-func (b *Bst) Delete(val NodeValue) {
+func (b *BST) Delete(key int) {
 	// find the node should be removed
 	// super is the pointer of the pointer that
 	// points to the node should be removed
 	super := &b.root
-	for val.Compare((*super).Val) != 0 && *super != nil {
-		if val.Compare((*super).Val) < 0 {
+	for key != (*super).Key && *super != nil {
+		if key < (*super).Key {
 			super = &(*super).left
 		} else {
 			super = &(*super).right
@@ -45,7 +69,7 @@ func (b *Bst) Delete(val NodeValue) {
 	}
 
 	if *super == nil {
-		panic("can not found node")
+		panic("key not found")
 	}
 
 	// at most one child
@@ -74,11 +98,11 @@ func (b *Bst) Delete(val NodeValue) {
 }
 
 // inorder traverse a tree
-func (b *Bst) List() []*Node {
+func (b *BST) List() []*BSTNode {
 	// ret is a list records ordered nodes
 	// that will be returned
-	ret := []*Node{}
-	stack := []*Node{}
+	ret := []*BSTNode{}
+	stack := []*BSTNode{}
 	current := b.root
 	for len(stack) != 0 || current != nil {
 		if current != nil {
@@ -94,4 +118,8 @@ func (b *Bst) List() []*Node {
 		}
 	}
 	return ret
+}
+
+func (b *BST) Do(do func(*BSTNode)) {
+	b.root.do(do)
 }
