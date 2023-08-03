@@ -92,6 +92,7 @@ func (b *BST) Delete(key int) {
 	}
 
 	// replace the deleted node with the successor
+	(*super).Key = (*super_successor).Key
 	(*super).Val = (*super_successor).Val
 	// connect the parent of successor to the child of successor.
 	*super_successor = (*super_successor).right
