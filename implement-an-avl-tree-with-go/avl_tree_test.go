@@ -103,17 +103,17 @@ func TestAVLTreeCorrectness(t *testing.T) {
 }
 
 func generateData() ([]int, []int) {
-	rand.New(rand.NewSource(0))
+	r := rand.New(rand.NewSource(0))
 	list := make([]int, 1024)
 	for i := range list {
 		list[i] = i
 	}
-	rand.Shuffle(len(list), func(i, j int) {
+	r.Shuffle(len(list), func(i, j int) {
 		list[i], list[j] = list[j], list[i]
 	})
 	list2 := make([]int, len(list))
 	copy(list2, list)
-	rand.Shuffle(len(list2), func(i, j int) {
+	r.Shuffle(len(list2), func(i, j int) {
 		list2[i], list2[j] = list2[j], list2[i]
 	})
 	return list, list2
