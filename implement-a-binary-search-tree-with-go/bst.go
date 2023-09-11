@@ -55,6 +55,44 @@ func (b *BST) Insert(n *BSTNode) {
 	*super = n
 }
 
+func (b *BST) Insert2(n *BSTNode) {
+	var parent *BSTNode
+	current := b.root
+	for current != nil {
+		parent = current
+		if n.Key < current.Key {
+			current = current.left
+		} else {
+			current = current.right
+		}
+	}
+	if parent != nil {
+		if parent.Key > n.Key {
+			parent.left = n
+		} else {
+			parent.right = n
+		}
+	} else {
+		b.root = n
+	}
+}
+
+func (b *BST) InsertRec(n *BSTNode) {
+	b.root = b.root.insertRec(n)
+}
+
+func (b *BSTNode) insertRec(n *BSTNode) *BSTNode {
+	if b == nil {
+		return n
+	}
+	if n.Key < b.Key {
+		b.left = b.left.insertRec(n)
+	} else if n.Key > b.Key {
+		b.right = b.right.insertRec(n)
+	}
+	return b
+}
+
 func (b *BST) Delete(key int) {
 	// find the node should be removed
 	// super is the pointer of the pointer that
