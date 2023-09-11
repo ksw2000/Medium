@@ -116,12 +116,12 @@ func TestBSTCorrectness(t *testing.T) {
 }
 
 func generateData(size int) []int {
-	rand.NewSource(0)
+	r := rand.New(rand.NewSource(0))
 	list := make([]int, size)
 	for i := range list {
 		list[i] = i
 	}
-	rand.Shuffle(len(list), func(i, j int) {
+	r.Shuffle(len(list), func(i, j int) {
 		list[i], list[j] = list[j], list[i]
 	})
 	return list
