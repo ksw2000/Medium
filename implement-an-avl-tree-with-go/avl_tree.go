@@ -1,5 +1,27 @@
 package avl
 
+type AVLTree struct {
+	root *AVLNode
+}
+
+func (t *AVLTree) Insert(n *AVLNode) {
+	t.root = t.root.insert(n)
+}
+
+func (t *AVLTree) Search(key int) *AVLNode {
+	return t.root.search(key)
+}
+
+func (t *AVLTree) Delete(key int) {
+	t.root = t.root.delete(key)
+}
+
+func (t *AVLTree) Do(do func(*AVLNode)) {
+	if t.root != nil {
+		t.root.do(do)
+	}
+}
+
 type AVLNode struct {
 	Key    int
 	Val    interface{}
@@ -18,6 +40,7 @@ func NewAVLNode(key int, val interface{}) *AVLNode {
 	}
 }
 
+// i.e., max(n.right.height, n.left.height) + 1
 func (n *AVLNode) updateHeight() {
 	left, right := -1, -1
 	if n.left != nil {
@@ -33,26 +56,24 @@ func (n *AVLNode) updateHeight() {
 	}
 }
 
-/*
-	    n
-	  /  \
-	n1    n2
-   /  \
-n3     n4
+//         n
+//       /  \
+//     n1    n2
+//    /  \
+// n3     n4
 
-       n1
-	  /  \
-    n3    n
-		/  \
-	   n4  n2
+//     n1
+//    /  \
+//  n3    n
+//      /  \
+//     n4  n2
 
-n3: no change children -> no change height
-n4: no change children -> no change height
-n2: no change children -> no change height
+// n3: no change children -> no change height
+// n4: no change children -> no change height
+// n2: no change children -> no change height
 
-n1: right child is changed -> should change height
-n: left child is changed -> should change height
-*/
+// n1: right child is changed -> should change height
+// n: left child is changed -> should change height
 
 func (n *AVLNode) rightRotation() *AVLNode {
 	n1 := n.left
@@ -63,26 +84,24 @@ func (n *AVLNode) rightRotation() *AVLNode {
 	return n1
 }
 
-/*
-	 n
-	/ \
- n2   n1
-	 /  \
-   n3    n4
+//     n
+//   /  \
+//  n2   n1
+//      /  \
+//    n3   n4
 
-	  n1
-	 /  \
-	n    n4
-  /  \
-n2   n3
+//      n1
+//     /  \
+//    n    n4
+//   /  \
+// n2   n3
 
-n3: no change children -> no change height
-n4: no change children -> no change height
-n2: no change children -> no change height
+// n3: no change children -> no change height
+// n4: no change children -> no change height
+// n2: no change children -> no change height
 
-n1: left child is changed -> should change height
-n: right child is changed -> should change height
-*/
+// n1: left child is changed -> should change height
+// n: right child is changed -> should change height
 
 func (n *AVLNode) leftRotation() *AVLNode {
 	n1 := n.right
@@ -156,26 +175,44 @@ func (n *AVLNode) search(key int) *AVLNode {
 	return nil
 }
 
+func (n *AVLNode) delete(key int) *AVLNode {
+	if n == nil {
+		return nil
+	}
+
+	if key < n.Key {
+		n = n.left.delete(key)
+	} else if key > n.Key {
+		n = n.right.delete(key)
+	} else {
+		if n.right != nil {
+			successor := n.right
+			for successor.left != nil {
+				successor = successor.left
+			}
+			n.Key = successor.Key
+			n.Val = successor.Val
+			n.right = n.right.delete(successor.Key)
+		} else if n.left != nil {
+			// node with only left child
+			n = n.left
+		} else {
+			// node has no children
+			n = nil
+			return n
+		}
+	}
+	if n != nil {
+		n.updateHeight()
+		n = n.rebalance()
+	}
+	return n
+}
+
 func (n *AVLNode) do(do func(*AVLNode)) {
 	if n != nil {
 		n.left.do(do)
 		do(n)
 		n.right.do(do)
 	}
-}
-
-type AVLTree struct {
-	root *AVLNode
-}
-
-func (t *AVLTree) Insert(n *AVLNode) {
-	t.root = t.root.insert(n)
-}
-
-func (t *AVLTree) Search(key int) *AVLNode {
-	return t.root.search(key)
-}
-
-func (t *AVLTree) Do(do func(*AVLNode)) {
-	t.root.do(do)
 }

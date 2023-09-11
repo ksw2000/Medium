@@ -5,6 +5,8 @@ import (
 	"hash/fnv"
 	"math/rand"
 	"testing"
+
+	"github.com/karask/go-avltree"
 )
 
 func hash(s string) int {
@@ -13,7 +15,7 @@ func hash(s string) int {
 	return int(h.Sum32() % 255)
 }
 
-// go test -run TestAVLTree -v
+// go test -v -run TestAVLTree
 func TestAVLTree(t *testing.T) {
 	tree := new(AVLTree)
 	list := []string{
@@ -46,10 +48,14 @@ func TestAVLTree(t *testing.T) {
 }
 
 func TestAVLTreeCorrectness(t *testing.T) {
-	list := []int{}
-	for i := 0; i < 100000; i++ {
-		list = append(list, rand.Int())
+	list := make([]int, 1024)
+	for i := range list {
+		list[i] = i
 	}
+	rand.Shuffle(len(list), func(i, j int) {
+		list[i], list[j] = list[j], list[i]
+	})
+	fmt.Println(list)
 	tree := new(AVLTree)
 	for _, e := range list {
 		tree.Insert(NewAVLNode(e, e))
@@ -72,4 +78,69 @@ func TestAVLTreeCorrectness(t *testing.T) {
 			t.Fail()
 		}
 	})
+
+	// try to delete
+	rand.Shuffle(len(list), func(i, j int) {
+		list[i], list[j] = list[j], list[i]
+	})
+	fmt.Println(list)
+
+	for i := range list {
+		tree.Delete(list[i])
+		start := 0
+		tree.Do(func(n *AVLNode) {
+			// decreasing in order
+			if n.Key < start {
+				t.Fail()
+			}
+			start = n.Key
+			// 		// each node's balance factor is in [-1, 1]
+			if n.balanceFactor() > 1 || n.balanceFactor() < -1 {
+				t.Fail()
+			}
+		})
+	}
+}
+
+func generateData() ([]int, []int) {
+	rand.New(rand.NewSource(0))
+	list := make([]int, 1024)
+	for i := range list {
+		list[i] = i
+	}
+	rand.Shuffle(len(list), func(i, j int) {
+		list[i], list[j] = list[j], list[i]
+	})
+	list2 := make([]int, len(list))
+	copy(list2, list)
+	rand.Shuffle(len(list2), func(i, j int) {
+		list2[i], list2[j] = list2[j], list2[i]
+	})
+	return list, list2
+}
+
+func BenchmarkAVLKarask(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		list, list2 := generateData()
+		tree := new(avltree.AVLTree)
+		for _, key := range list {
+			tree.Add(key, key)
+		}
+		for _, key := range list2 {
+			tree.Remove(key)
+		}
+	}
+}
+
+func BenchmarkAVLOurs(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		list, list2 := generateData()
+		tree := new(AVLTree)
+		for _, key := range list {
+			tree.Insert(NewAVLNode(key, key))
+		}
+		for _, key := range list2 {
+			tree.Delete(key)
+		}
+	}
 }
