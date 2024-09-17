@@ -181,9 +181,9 @@ func (n *AVLNode) delete(key int) *AVLNode {
 	}
 
 	if key < n.Key {
-		n = n.left.delete(key)
+		n.left = n.left.delete(key)
 	} else if key > n.Key {
-		n = n.right.delete(key)
+		n.right = n.right.delete(key)
 	} else {
 		if n.right != nil {
 			successor := n.right
