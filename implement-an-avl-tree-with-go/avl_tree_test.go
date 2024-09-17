@@ -144,3 +144,25 @@ func BenchmarkAVLOurs(b *testing.B) {
 		}
 	}
 }
+
+func TestDelete(t *testing.T) {
+	tree := new(AVLTree)
+	for i := 0; i < 1000; i++ {
+		tree.Insert(NewAVLNode(i, i))
+	}
+	for i := 0; i < 1000; i += 2 {
+		tree.Delete(i)
+	}
+	node := tree.Search(1)
+	if node == nil {
+		t.Fail()
+	}
+	if node.Key != 1 {
+		t.Fail()
+	}
+
+	node = tree.Search(0)
+	if node != nil {
+		t.Fail()
+	}
+}
